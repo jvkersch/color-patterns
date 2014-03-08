@@ -1,3 +1,8 @@
+"""
+Simple pattern editor example.
+
+"""
+
 import numpy as np
 
 from traits.etsconfig.api import ETSConfig
