@@ -69,13 +69,11 @@ class CheckerBoardModel(HasTraits):
         """ Returns the coordinates of the center of the cell with logical
         index `(i, j)`.
 
-        TODO update this method!
-
         """
-        y_size = self.size[1]
-        cx, cy = self.cell_size
+        ny, _ = self.data.shape
+        cx, cy = self._cell_size
         center_x = self._x_coords[j] + cx / 2
-        center_y = y_size - (self._y_coords[i] + cy / 2)
+        center_y = self._y_coords[ny - i - 1] + cy / 2
         return (center_x, center_y)
 
     @cached_property
@@ -97,16 +95,18 @@ class CheckerBoardModel(HasTraits):
 
     @cached_property
     def _get__x_coords(self):
-
-        ny, nx = self.data.shape
-        cx, cy = self.cell_size
-        px, py = self.padding
-        return [px + k * cx for k in xrange(nx + 1)]
+        """ Get the x-coordinates of the vertical checkerboard grid lines.
+        """
+        _, nx = self.data.shape
+        cx, _ = self._cell_size
+        left = self._padding_abs[2]
+        return [left + k * cx for k in xrange(nx + 1)]
 
     @cached_property
     def _get__y_coords(self):
-
-        ny, nx = self.data.shape
-        cx, cy = self.cell_size
-        px, py = self.padding
-        return [py + k * cy for k in xrange(ny + 1)]
+        """ Get the y-coordinates of the horizontal checkerboard grid lines.
+        """
+        ny, _ = self.data.shape
+        _, cy = self._cell_size
+        bottom = self._padding_abs[1]
+        return [bottom + k * cy for k in xrange(ny + 1)]
