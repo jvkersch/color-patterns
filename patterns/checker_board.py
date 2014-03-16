@@ -35,6 +35,9 @@ class CheckerBoardComponent(Component):
     padding = DelegatesTo('model')
 
     def _draw(self, gc, view_bounds=None, mode="default"):
+        self._draw_outline(gc)
+
+    def _draw_outline(self, gc):
 
         model = self.model
         model.size = tuple(self.bounds)
@@ -66,8 +69,6 @@ class CheckerBoardComponent(Component):
                 gc.move_to(left, y)
                 gc.line_to(sx - right, y)
                 gc.stroke_path()
-
-            print model.data
 
             for i in range(nx):
                 for j in range(ny):
