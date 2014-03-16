@@ -27,10 +27,10 @@ class CheckerBoardModel(HasTraits):
     _cell_size = Property(Tuple(Int, Int))
 
     # x-coordinates of the checkerboard pattern lines.
-    _x_coords = Property(List(Int), depends_on='padding, cell_size, data')
+    _x_coords = Property(List(Int))
 
     # y-coordinates of the checkerboard pattern lines.
-    _y_coords = Property(List(Int), depends_on='padding, cell_size, data')
+    _y_coords = Property(List(Int))
 
     def is_inside(self, x, y):
         """ Checks whether the point with coordinates `(x, y)` is inside
@@ -76,7 +76,9 @@ class CheckerBoardModel(HasTraits):
         center_y = self._y_coords[ny - i - 1] + cy / 2
         return (center_x, center_y)
 
-    @cached_property
+    def _padding_default(self):
+        return (0.1, 0.1, 0.1, 0.1)
+
     def _get__padding_abs(self):
 
         top, bottom, left, right = self.padding
@@ -85,7 +87,6 @@ class CheckerBoardModel(HasTraits):
             int(sy * top), int(sy * bottom), int(sx * left), int(sx * right)
         )
 
-    @cached_property
     def _get__cell_size(self):
 
         top, bottom, left, right = self._padding_abs
@@ -93,7 +94,6 @@ class CheckerBoardModel(HasTraits):
         ny, nx = self.data.shape
         return ((sx - left - right) / nx, (sy - top - bottom) / ny)
 
-    @cached_property
     def _get__x_coords(self):
         """ Get the x-coordinates of the vertical checkerboard grid lines.
         """
@@ -102,7 +102,6 @@ class CheckerBoardModel(HasTraits):
         left = self._padding_abs[2]
         return [left + k * cx for k in xrange(nx + 1)]
 
-    @cached_property
     def _get__y_coords(self):
         """ Get the y-coordinates of the horizontal checkerboard grid lines.
         """

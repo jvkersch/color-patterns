@@ -1,12 +1,11 @@
-from enable.colors import ColorTrait
-from math import floor
+from math import floor, pi
 
-from enable.api import BaseTool, Component, Window
-
-from traits.api import Array
-
+from enable.api import BaseTool, ColorTrait, Component, Window
+from traits.api import Array, DelegatesTo, Instance, on_trait_change
 from traitsui.qt4.editor import Editor
 from traitsui.qt4.basic_editor_factory import BasicEditorFactory
+
+from .checker_board_model import CheckerBoardModel
 
 
 class ToggleClickerTool(BaseTool):
@@ -28,95 +27,95 @@ class ToggleClickerTool(BaseTool):
 
 class CheckerBoardComponent(Component):
 
-    array = Array
+    model = Instance(CheckerBoardModel)
 
-    def _tools_default(self):
-        return [ToggleClickerTool(self)]
+    data = DelegatesTo('model')
+
+    padding = DelegatesTo('model')
 
     def _draw(self, gc, view_bounds=None, mode="default"):
 
-        t_array = self.array.T
+        model = self.model
+        model.size = tuple(self.bounds)
 
-        dx, dy = self.bounds
-        x, y = self.position
-
-        nr_x_boxes, nr_y_boxes = t_array.shape
-
-        rel_size = 0.2
-        abs_size_x = rel_size * dx
-        abs_size_y = rel_size * dy
-
+        # Make this into a property.
+        abs_size_x, abs_size_y = model._cell_size
         abs_radius = max(0.10 * min(abs_size_x, abs_size_y), 3.0)
 
-        padding_x = (1.0 - rel_size * nr_x_boxes) * dx / 2.0
-        padding_y = (1.0 - rel_size * nr_y_boxes) * dy / 2.0
+        x_coords = model._x_coords
+        y_coords = model._y_coords
 
-        x_coords = [padding_x + k * abs_size_x for k in xrange(nr_x_boxes + 1)]
-        y_coords = [padding_y + k * abs_size_y for k in xrange(nr_y_boxes + 1)]
+        top, bottom, left, right = model._padding_abs
+        sx, sy = model.size
+
+        ny, nx = model.data.shape
 
         with gc:
             gc.set_line_width(2.0)
             gc.set_stroke_color((0.0, 0.0, 0.0))
 
             for x in x_coords:
-                gc.move_to(x, dy - padding_y)
-                gc.line_to(x, padding_y)
+                # Vertical lines.
+                gc.move_to(x, bottom)
+                gc.line_to(x, sy - top)
                 gc.stroke_path()
 
             for y in y_coords:
-                gc.move_to(padding_x, y)
-                gc.line_to(dx - padding_x, y)
+                # Horizontal lines.
+                gc.move_to(left, y)
+                gc.line_to(sx - right, y)
                 gc.stroke_path()
 
-            for i in range(nr_x_boxes):
-                for j in range(nr_y_boxes):
-                    if t_array[i, j]:
-                        cx = x_coords[i] + abs_size_x / 2
-                        cy = dy - (y_coords[j] + abs_size_y / 2)
-                        gc.arc(cx, cy, abs_radius, 0, 2 * 3.1415)
+            for i in range(nx):
+                for j in range(ny):
+                    if model.data[j, i]:
+                        center = model.cell_center(i, j)
+                        gc.arc(center[0], center[1], abs_radius, 0, 2 * pi)
                         gc.fill_path()
 
-    def _pixel_coordinates_to_index(self, x, y):
-        # TODO Should this be part of the model?
+    # def _pixel_coordinates_to_index(self, x, y):
+    #     # TODO Should this be part of the model?
 
-        # TODO: refactor this. This is an exact duplicate of the calculations
-        # above.
-        t_array = self.array.T
+    #     # TODO: refactor this. This is an exact duplicate of the calculations
+    #     # above.
+    #     t_array = self.array.T
 
-        dx, dy = self.bounds
+    #     dx, dy = self.bounds
 
-        nr_x_boxes, nr_y_boxes = t_array.shape
+    #     nr_x_boxes, nr_y_boxes = t_array.shape
 
-        rel_size = 0.2
-        abs_size_x = rel_size * dx
-        abs_size_y = rel_size * dy
+    #     rel_size = 0.2
+    #     abs_size_x = rel_size * dx
+    #     abs_size_y = rel_size * dy
 
-        abs_radius = max(0.10 * min(abs_size_x, abs_size_y), 3.0)
+    #     abs_radius = max(0.10 * min(abs_size_x, abs_size_y), 3.0)
 
-        padding_x = (1.0 - rel_size * nr_x_boxes) * dx / 2.0
-        padding_y = (1.0 - rel_size * nr_y_boxes) * dy / 2.0
+    #     padding_x = (1.0 - rel_size * nr_x_boxes) * dx / 2.0
+    #     padding_y = (1.0 - rel_size * nr_y_boxes) * dy / 2.0
 
-        x_coords = [padding_x + k * abs_size_x for k in xrange(nr_x_boxes + 1)]
-        y_coords = [padding_y + k * abs_size_y for k in xrange(nr_y_boxes + 1)]
+    #     x_coords = [padding_x + k * abs_size_x for k in xrange(nr_x_boxes + 1)]
+    #     y_coords = [padding_y + k * abs_size_y for k in xrange(nr_y_boxes + 1)]
 
-        if x < x_coords[0] or x > x_coords[-1]:
-            return None
-        if y < y_coords[0] or y > y_coords[-1]:
-            return None
+    #     if x < x_coords[0] or x > x_coords[-1]:
+    #         return None
+    #     if y < y_coords[0] or y > y_coords[-1]:
+    #         return None
 
-        x -= padding_x
-        y -= padding_y
+    #     x -= padding_x
+    #     y -= padding_y
 
-        i = floor(x / abs_size_x)
-        j = floor(y / abs_size_y)
+    #     i = floor(x / abs_size_x)
+    #     j = floor(y / abs_size_y)
 
-        j = nr_y_boxes - 1 - j
+    #     j = nr_y_boxes - 1 - j
 
-        return int(j), int(i)
+    #     return int(j), int(i)
 
-    def _toggle_value(self, i, j):
+    # def _toggle_value(self, i, j):
 
-        self.array[i, j] = not self.array[i, j]
+    #     self.array[i, j] = not self.array[i, j]
+
+        
 
 
 class _CheckerBoardEditor(Editor):
@@ -141,7 +140,10 @@ class _CheckerBoardEditor(Editor):
         self._window.component = component
 
     def _make_component(self, arr):
-        component = CheckerBoardComponent(array=self.value)
+        print 'Making new component'
+        component = CheckerBoardComponent(
+            model=CheckerBoardModel(data=self.value)
+        )
         component.request_redraw()
         return component
 
