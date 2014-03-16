@@ -1,7 +1,7 @@
 from math import floor
 
 from traits.api import (
-    Array, Float, HasTraits, Int, List, Property, Tuple, cached_property)
+    Array, Float, HasTraits, Int, List, Property, Tuple)
 
 
 class CheckerBoardModel(HasTraits):
