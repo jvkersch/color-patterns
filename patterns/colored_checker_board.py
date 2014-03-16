@@ -6,11 +6,7 @@ from .checker_board import (
     CheckerBoardEditor, ToggleClickerTool
 )
 from .colored_checker_board_model import ColoredCheckerBoardModel
-
-
-def rgb_from_qt_color(color):
-
-    return (color.red(), color.green(), color.blue())
+from .utility import rgb_from_qt_color
 
 
 class RightClickerTool(BaseTool):
