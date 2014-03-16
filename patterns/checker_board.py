@@ -1,7 +1,7 @@
 from math import pi
 
 from enable.api import BaseTool, ColorTrait, Component, Window
-from traits.api import DelegatesTo, Instance
+from traits.api import DelegatesTo, Instance, on_trait_change
 from traitsui.qt4.editor import Editor
 from traitsui.qt4.basic_editor_factory import BasicEditorFactory
 
@@ -82,7 +82,6 @@ class CheckerBoardComponent(Component):
     def _toggle_value(self, i, j):
         data = self.model.data
         data[i, j] = not data[i, j]
-        print data
 
 
 class _CheckerBoardEditor(Editor):
@@ -102,13 +101,14 @@ class _CheckerBoardEditor(Editor):
         self._parent = None
         super(_CheckerBoardEditor, self).dispose()
 
+    @on_trait_change('data')
     def update_editor(self):
         component = self._make_component(self.value)
         self._window.component = component
 
     def _make_component(self, arr):
         component = CheckerBoardComponent(
-            model=CheckerBoardModel(data=self.value)
+            model=CheckerBoardModel(data=arr)
         )
         component.request_redraw()
         return component
