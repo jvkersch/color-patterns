@@ -6,7 +6,7 @@ from traitsui.api import Group, HGroup, Item, VGroup, View
 from patterns.checker_board import CheckerBoardEditor
 from patterns.colored_checker_board import ColoredCheckerBoardEditor
 
-from patterns.models import BindingModel, PatternModel, PatternRepeatModel
+from patterns.models import Binding, Pattern
 
 
 view = View(
@@ -19,8 +19,8 @@ view = View(
                     'binding.array',
                     editor=CheckerBoardEditor(),
                     label='Binding'),
-                Item('repeat.repeat_x'),
-                Item('repeat.repeat_y'),
+                Item('pattern.repeat_x'),
+                Item('pattern.repeat_y'),
                 label='Binding',
                 show_border=True,
             )
@@ -30,17 +30,17 @@ view = View(
             show_border=True,
             show_labels=False,
             label='Pattern'),
-        )
-    )
+        ),
+    title='Color Patterns',
+)
 
 
 if __name__ == '__main__':
 
-    binding = BindingModel()
-    pattern = PatternModel()
-    repeat = PatternRepeatModel()
+    binding = Binding()
+    pattern = Pattern()
 
     binding.configure_traits(
         view=view,
-        context={'binding': binding, 'pattern': pattern, 'repeat': repeat}
+        context={'binding': binding, 'pattern': pattern}
     )

@@ -1,9 +1,15 @@
+"""
+Simple facades around checkerboard models, adapted for various purposes.
+
+
+"""
+
 import numpy as np
 
 from traits.api import Array, HasTraits, Int
 
 
-class BindingModel(HasTraits):
+class Binding(HasTraits):
 
     rows = Int
 
@@ -21,14 +27,11 @@ class BindingModel(HasTraits):
         return self.array.shape[1]
 
 
-class PatternRepeatModel(HasTraits):
+class Pattern(HasTraits):
 
     repeat_x = Int
 
     repeat_y = Int
-
-
-class PatternModel(HasTraits):
 
     array = Array
 
