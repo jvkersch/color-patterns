@@ -6,6 +6,7 @@ def gcd(a, b):
     """
     return standard_gcd(a, b)
 
+
 def lcm(a, b):
     """ Returns the least common multiple of the two given numbers.
     """

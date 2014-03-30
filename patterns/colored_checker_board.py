@@ -1,4 +1,6 @@
 from enable.api import BaseTool, ColorTrait
+from kiva.constants import FILL
+
 from pyface.qt import QtGui
 
 from .checker_board import (
@@ -10,7 +12,7 @@ from .colored_checker_board_model import ColoredCheckerBoardModel
 
 def rgb_from_qt_color(color):
 
-    return (color.red(), color.green(), color.blue())
+    return (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
 
 
 class RightClickerTool(BaseTool):
@@ -40,7 +42,24 @@ class ColoredCheckerBoardComponent(CheckerBoardComponent):
         self._draw_outline(gc)
 
     def _draw_colors(self, gc):
-        pass
+
+        model = self.model
+        ny, nx = model.data.shape
+        x_coords = model._x_coords
+        y_coords = model._y_coords
+        cx, cy = model._cell_size
+
+        print x_coords
+        print y_coords
+
+        with gc:
+            for i in range(nx):
+                for j in range(ny):
+                    color = self.model.colors[ny - 1 - j, i]
+                    gc.set_fill_color(color)
+                    gc.draw_rect(
+                        (x_coords[i], y_coords[j], cx, cy),
+                        FILL)
 
     def select_color(self, i, j):
         """
@@ -49,7 +68,11 @@ class ColoredCheckerBoardComponent(CheckerBoardComponent):
         """
         color = QtGui.QColorDialog.getColor()
         if color.isValid():
-            print "selected", rgb_from_qt_color(color)
+            rgb_color = rgb_from_qt_color(color)
+            self.model.colors[i, j] = rgb_color
+            print "Selected color {} for box {}.".format(
+                rgb_color, (i, j))
+            self.request_redraw()
 
     def _tools_default(self):
         return [RightClickerTool(self), ToggleClickerTool(self)]
@@ -65,7 +88,7 @@ class _ColoredCheckerBoardEditor(_CheckerBoardEditor):
         component.request_redraw()
         return component
 
-    def dispose ( self ):
+    def dispose(self):
 
         super(_ColoredCheckerBoardEditor, self).dispose()
 
