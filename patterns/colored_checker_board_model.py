@@ -14,7 +14,7 @@ class ColoredCheckerBoardModel(CheckerBoardModel):
 
     def _colors_default(self):
         arr = np.empty(self.data.shape, dtype=COLOR_DTYPE)
-        arr.fill((1.0, 1.0, 0.0))
+        arr.fill((1.0, 1.0, 1.0))
         return arr
 
     @on_trait_change('data')
