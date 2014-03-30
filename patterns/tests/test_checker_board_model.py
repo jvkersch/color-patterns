@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from ..checker_board_model import CheckerBoardModel
 
@@ -81,3 +82,43 @@ class TestCheckerBoardModel(unittest.TestCase):
             for j in xrange(data.shape[1]):
                 point = ctr(i, j)
                 self.assertEqual(to_array(*point), (i, j))
+
+    def test_enlarge_board_size(self):
+
+        data = np.array(
+            [[True, False, False],
+             [False, True, False],
+             [True, False, False],
+             [False, False, False]]
+        )
+
+        model = CheckerBoardModel(data=data[0:3, 0:2])
+        self.assertEqual(model.rows, 3)
+        self.assertEqual(model.columns, 2)
+
+        model.rows = 4
+        assert_array_equal(model.data, data[:, 0:2])
+
+        model.columns = 3
+        assert_array_equal(model.data, data)
+
+    def test_shrink_board_size(self):
+
+        data = np.array(
+            [[True, False],
+             [False, True]]
+        )
+
+        model = CheckerBoardModel(data=data)
+        self.assertEqual(model.rows, 2)
+        self.assertEqual(model.columns, 2)
+
+        model.rows = 1
+        assert_array_equal(model.data, data[:1, :])
+
+        model.columns = 1
+        assert_array_equal(model.data, data[:1, :1])
+
+
+if __name__ == '__main__':
+    unittest.main()

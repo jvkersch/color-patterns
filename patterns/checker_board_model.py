@@ -1,5 +1,7 @@
 from math import floor
 
+import numpy as np
+
 from traits.api import (
     Array, Float, HasTraits, Int, List, Property, Tuple)
 
@@ -12,6 +14,12 @@ class CheckerBoardModel(HasTraits):
 
     # Array specifying the checkerboard pattern.
     data = Array
+
+    # Rows on the checkerboard.
+    rows = Property(Int)
+
+    # Columns on the checkerboard.
+    columns = Property(Int)
 
     # Padding to add to the board (in relative coordinates, along
     # (top, bottom, left, right)).
@@ -109,3 +117,26 @@ class CheckerBoardModel(HasTraits):
         _, cy = self._cell_size
         bottom = self._padding_abs[1]
         return [bottom + k * cy for k in xrange(ny + 1)]
+
+    def _get_rows(self):
+        return self.data.shape[0]
+
+    def _get_columns(self):
+        return self.data.shape[1]
+
+    def _set_rows(self, value):
+        self.reshape_data((value, self.columns))
+
+    def _set_columns(self, value):
+        self.reshape_data((self.rows, value))
+
+    def reshape_data(self, new_shape):
+        """ Adjust the data array to the new shape.
+        """
+        # TODO There is probably a Numpy function that does this already.
+        new_array = np.zeros(new_shape, dtype=bool)
+        old_rows, old_columns = self.data.shape
+        rows = min(old_rows, new_shape[0])
+        columns = min(old_columns, new_shape[1])
+        new_array[:rows, :columns] = self.data[:rows, :columns]
+        self.data = new_array
