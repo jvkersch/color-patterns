@@ -6,7 +6,7 @@ Simple facades around checkerboard models, adapted for various purposes.
 
 import numpy as np
 
-from traits.api import Array, HasTraits, Int, on_trait_change
+from traits.api import Array, HasTraits, Instance, Int, on_trait_change
 
 
 class Binding(HasTraits):
@@ -47,3 +47,14 @@ class Pattern(HasTraits):
 
     def _array_default(self):
         return np.array([[False, True], [True, False], [True, True]])
+
+
+class PatternController(HasTraits):
+
+    binding = Instance(Binding, ())
+
+    pattern = Instance(Pattern, ())
+
+    @on_trait_change('binding.array')
+    def _update_pattern(self):
+        print 'binding array updated'
