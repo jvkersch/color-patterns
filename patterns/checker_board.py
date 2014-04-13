@@ -84,6 +84,10 @@ class CheckerBoardComponent(Component):
         data = self.model.data
         data[i, j] = not data[i, j]
 
+    @on_trait_change('model.updated')
+    def redraw(self):
+        self.request_redraw()
+
 
 class _CheckerBoardEditor(Editor):
 
