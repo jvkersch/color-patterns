@@ -7,7 +7,6 @@ from .checker_board import (
     CheckerBoardComponent, _CheckerBoardEditor,
     CheckerBoardEditor, ToggleClickerTool
 )
-from .colored_checker_board_model import ColoredCheckerBoardModel
 
 
 def rgb_from_qt_color(color):
@@ -80,17 +79,10 @@ class ColoredCheckerBoardComponent(CheckerBoardComponent):
 
 class _ColoredCheckerBoardEditor(_CheckerBoardEditor):
 
-    def _make_component(self, arr):
-
-        component = ColoredCheckerBoardComponent(
-            model=ColoredCheckerBoardModel(data=arr)
-        )
+    def _make_component(self, model):
+        component = ColoredCheckerBoardComponent(model=model)
         component.request_redraw()
         return component
-
-    def dispose(self):
-
-        super(_ColoredCheckerBoardEditor, self).dispose()
 
 
 class ColoredCheckerBoardEditor(CheckerBoardEditor):

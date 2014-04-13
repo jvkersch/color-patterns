@@ -15,12 +15,12 @@ class TestColoredCheckerBoardModel(unittest.TestCase, UnittestTools):
 
         self.assertEqual(colors.shape, (3, 4))
         for entry in colors.flat:
-            self.assertSequenceEqual(entry, (255, 255, 255))
+            self.assertSequenceEqual(entry, (1.0, 1.0, 1.0))
 
     def test_update(self):
         model = ColoredCheckerBoardModel(data=np.zeros((3, 4)))
         colors = model.colors
-        colors.fill((128, 128, 128))
+        colors.fill((0.5, 0.5, 0.5))
 
         # Enlarge data array.
         with self.assertTraitChanges(model, 'colors', count=1) as ctx:
@@ -30,11 +30,11 @@ class TestColoredCheckerBoardModel(unittest.TestCase, UnittestTools):
         self.assertEqual(new_colors.shape, (4, 5))
 
         for entry in new_colors[:3, :4].flat:
-            self.assertSequenceEqual(entry, (128, 128, 128))
+            self.assertSequenceEqual(entry, (0.5, 0.5, 0.5))
         for entry in new_colors[3, :].flat:
-            self.assertSequenceEqual(entry, (255, 255, 255))
+            self.assertSequenceEqual(entry, (1.0, 1.0, 1.0))
         for entry in new_colors[:, 4].flat:
-            self.assertSequenceEqual(entry, (255, 255, 255))
+            self.assertSequenceEqual(entry, (1.0, 1.0, 1.0))
 
         # Reduce data array.
         with self.assertTraitChanges(model, 'colors', count=1) as ctx:
@@ -42,7 +42,7 @@ class TestColoredCheckerBoardModel(unittest.TestCase, UnittestTools):
 
         new_colors = ctx.events[0][-1]
         self.assertEqual(new_colors.shape, (1, 1))
-        self.assertSequenceEqual(new_colors[0, 0], (128, 128, 128))
+        self.assertSequenceEqual(new_colors[0, 0], (0.5, 0.5, 0.5))
 
 
 if __name__ == '__main__':
