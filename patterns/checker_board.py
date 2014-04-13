@@ -102,10 +102,10 @@ class _CheckerBoardEditor(Editor):
         self._parent = None
         super(_CheckerBoardEditor, self).dispose()
 
-    # @on_trait_change('value')
-    # def update_editor(self):
-    #     component = self._make_component(self.value)
-    #     self._window.component = component
+    @on_trait_change('value')
+    def update_editor(self):
+        component = self._make_component(self.value)
+        self._window.component = component
 
     def _make_component(self, model):
         component = CheckerBoardComponent(model=model)
