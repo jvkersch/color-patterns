@@ -3,7 +3,7 @@ from math import floor
 import numpy as np
 
 from traits.api import (
-    Array, Float, HasTraits, Int, List, Property, Tuple)
+    Array, Event, Float, HasTraits, Int, List, Property, Tuple)
 
 
 class CheckerBoardModel(HasTraits):
@@ -11,6 +11,8 @@ class CheckerBoardModel(HasTraits):
     A checker board pattern with a fixed screen width and height.
 
     """
+    # Event fired when the checkerboard data has been updated.
+    updated = Event
 
     # Array specifying the checkerboard pattern.
     data = Array
@@ -39,6 +41,13 @@ class CheckerBoardModel(HasTraits):
 
     # y-coordinates of the checkerboard pattern lines.
     _y_coords = Property(List(Int))
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __setitem__(self, index, value):
+        self.data[index] = value
+        self.updated = True
 
     def is_inside(self, x, y):
         """ Checks whether the point with coordinates `(x, y)` is inside
@@ -139,4 +148,6 @@ class CheckerBoardModel(HasTraits):
         rows = min(old_rows, new_shape[0])
         columns = min(old_columns, new_shape[1])
         new_array[:rows, :columns] = self.data[:rows, :columns]
+
         self.data = new_array
+        self.updated = True

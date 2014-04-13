@@ -3,10 +3,12 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
+from traits.testing.unittest_tools import UnittestTools
+
 from ..checker_board_model import CheckerBoardModel
 
 
-class TestCheckerBoardModel(unittest.TestCase):
+class TestCheckerBoardModel(unittest.TestCase, UnittestTools):
 
     def test_hits(self):
 
@@ -118,6 +120,24 @@ class TestCheckerBoardModel(unittest.TestCase):
 
         model.columns = 1
         assert_array_equal(model.data, data[:1, :1])
+
+    def test_event_updates(self):
+
+        data = np.array(
+            [[True, False],
+             [False, True]]
+        )
+
+        model = CheckerBoardModel(data=data)
+
+        with self.assertTraitChanges(model, 'updated'):
+            model.rows = 3
+
+        with self.assertTraitChanges(model, 'updated'):
+            model.columns = 5
+
+        with self.assertTraitChanges(model, 'updated'):
+            model[0, 0] = not model[0, 0]
 
 
 if __name__ == '__main__':
