@@ -87,6 +87,15 @@ class MainWindow(HasTraits):
     def _update_pattern_rows(self, value):
         self.pattern.rows = value * self.binding_rows
 
+    @on_trait_change('binding:data_updated')
+    def _update_pattern_data(self, value):
+        # Simply replicate the pattern everywhere.
+        self.pattern.data = np.tile(
+            self.binding.data,
+            (self.pattern_repeat_y, self.pattern_repeat_x)
+        )
+        self.pattern.data_updated = True  # Hmmm.
+
 
 if __name__ == '__main__':
     main = MainWindow()
