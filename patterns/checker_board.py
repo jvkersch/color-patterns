@@ -81,10 +81,9 @@ class CheckerBoardComponent(Component):
         return [ToggleClickerTool(self)]
 
     def _toggle_value(self, i, j):
-        data = self.model.data
-        data[i, j] = not data[i, j]
+        self.model[i, j] = not self.model[i, j]
 
-    @on_trait_change('model.updated')
+    @on_trait_change('model.[data_updated, size_changed]')
     def redraw(self):
         self.request_redraw()
 

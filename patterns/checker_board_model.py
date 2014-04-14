@@ -12,7 +12,10 @@ class CheckerBoardModel(HasTraits):
 
     """
     # Event fired when the checkerboard data has been updated.
-    updated = Event
+    data_updated = Event
+
+    # Event fired when the checkerboard size has changed.
+    size_changed = Event
 
     # Array specifying the checkerboard pattern.
     data = Array
@@ -47,7 +50,7 @@ class CheckerBoardModel(HasTraits):
 
     def __setitem__(self, index, value):
         self.data[index] = value
-        self.updated = True
+        self.data_updated = index
 
     def is_inside(self, x, y):
         """ Checks whether the point with coordinates `(x, y)` is inside
@@ -150,4 +153,4 @@ class CheckerBoardModel(HasTraits):
         new_array[:rows, :columns] = self.data[:rows, :columns]
 
         self.data = new_array
-        self.updated = True
+        self.size_changed = True
