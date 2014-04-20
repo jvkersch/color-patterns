@@ -3,7 +3,7 @@ import numpy as np
 from traits.etsconfig.api import ETSConfig
 ETSConfig.toolkit = 'qt4'
 
-from traits.api import HasTraits, Instance, Int, on_trait_change
+from traits.api import Bool, HasTraits, Instance, Int, on_trait_change
 from traitsui.api import Group, HGroup, Item, VGroup, View
 
 from patterns.checker_board import CheckerBoardEditor
@@ -18,15 +18,15 @@ class MainWindow(HasTraits):
 
     binding = Instance(CheckerBoardModel)
 
-    binding_rows = Int
+    binding_rows = Int(2)
 
-    binding_cols = Int
+    binding_cols = Int(2)
 
     pattern = Instance(ColoredCheckerBoardModel)
 
-    pattern_repeat_x = Int(2)
+    pattern_repeat_x = Int(4)
 
-    pattern_repeat_y = Int(2)
+    pattern_repeat_y = Int(4)
 
     view = View(
         HGroup(
@@ -53,15 +53,12 @@ class MainWindow(HasTraits):
         title='Color Patterns',
     )
 
+    # Loopback guard to prevent cyclic updates between pattern and binding.
+    _update_binding = Bool(False)
+
     def _binding_default(self):
-        data = np.array([[False, True], [True, False], [True, True]])
+        data = np.zeros((self.binding_rows, self.binding_cols), dtype=bool)
         return CheckerBoardModel(data=data)
-
-    def _binding_rows_default(self):
-        return self.binding.rows
-
-    def _binding_cols_default(self):
-        return self.binding.columns
 
     def _pattern_default(self):
         cols = self.pattern_repeat_x * self.binding_cols
@@ -87,14 +84,28 @@ class MainWindow(HasTraits):
     def _update_pattern_rows(self, value):
         self.pattern.rows = value * self.binding_rows
 
-    @on_trait_change('binding:data_updated')
-    def _update_pattern_data(self, value):
-        # Simply replicate the pattern everywhere.
-        self.pattern.data = np.tile(
-            self.binding.data,
-            (self.pattern_repeat_y, self.pattern_repeat_x)
-        )
-        self.pattern.data_updated = True  # Hmmm.
+    @on_trait_change('binding:[data_updated, size_changed]')
+    def _update_pattern_data(self):
+        self._update_binding = True
+        try:
+            # Simply replicate the pattern everywhere.
+            self.pattern.data = np.tile(
+                self.binding.data,
+                (self.pattern_repeat_y, self.pattern_repeat_x)
+            )
+            self.pattern.data_updated = True
+        finally:
+            self._update_binding = False
+
+    @on_trait_change('pattern:data_updated')
+    def _update_binding_data(self):
+        if self._update_binding:
+            return  # Binding already updated.
+
+        rows = self.binding_rows
+        cols = self.binding_cols
+        self.binding.data = self.pattern.data[:rows, :cols]
+        self.binding.data_updated = True
 
 
 if __name__ == '__main__':
