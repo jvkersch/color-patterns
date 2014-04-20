@@ -4,8 +4,7 @@ from kiva.constants import FILL
 from pyface.qt import QtGui
 
 from .checker_board import (
-    CheckerBoardComponent, _CheckerBoardEditor,
-    CheckerBoardEditor, ToggleClickerTool
+    CheckerBoardComponent, _CheckerBoardEditor, CheckerBoardEditor
 )
 
 
@@ -14,9 +13,9 @@ def rgb_from_qt_color(color):
     return (color.red() / 255.0, color.green() / 255.0, color.blue() / 255.0)
 
 
-class RightClickerTool(BaseTool):
+class ColorSelectTool(BaseTool):
 
-    def normal_right_down(self, event):
+    def normal_left_down(self, event):
 
         x = event.x
         y = event.y
@@ -29,7 +28,6 @@ class RightClickerTool(BaseTool):
         except ValueError:
             pass
         else:
-            print "Right click on", mapped_index
             component.select_color(*mapped_index)
 
 
@@ -47,9 +45,6 @@ class ColoredCheckerBoardComponent(CheckerBoardComponent):
         x_coords = model._x_coords
         y_coords = model._y_coords
         cx, cy = model._cell_size
-
-        print x_coords
-        print y_coords
 
         with gc:
             for i in range(nx):
@@ -74,7 +69,7 @@ class ColoredCheckerBoardComponent(CheckerBoardComponent):
             self.request_redraw()
 
     def _tools_default(self):
-        return [RightClickerTool(self), ToggleClickerTool(self)]
+        return [ColorSelectTool(self)]
 
 
 class _ColoredCheckerBoardEditor(_CheckerBoardEditor):
