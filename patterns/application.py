@@ -84,7 +84,8 @@ class MainWindow(HasTraits):
     def _update_pattern_rows(self, value):
         self.pattern.rows = value * self.binding_rows
 
-    @on_trait_change('binding:[data_updated, size_changed]')
+    @on_trait_change(
+        'binding_cols, binding_rows, binding:[data_updated, size_changed]')
     def _update_pattern_data(self):
         self._update_binding = True
         try:
