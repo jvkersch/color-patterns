@@ -3,8 +3,10 @@ import numpy as np
 from traits.etsconfig.api import ETSConfig
 ETSConfig.toolkit = 'qt4'
 
-from traits.api import Bool, HasTraits, Instance, Int, on_trait_change
+from traits.api import Bool, Button, HasTraits, Instance, Int, on_trait_change
 from traitsui.api import Group, HGroup, Item, VGroup, View
+
+from pyface.qt import QtGui
 
 from patterns.checker_board import CheckerBoardEditor
 from patterns.checker_board_model import CheckerBoardModel
@@ -12,6 +14,7 @@ from patterns.colored_checker_board import ColoredCheckerBoardEditor
 from patterns.colored_checker_board_model import (
     ColoredCheckerBoardModel
 )
+from patterns.io import load_models, save_models
 
 
 class MainWindow(HasTraits):
@@ -28,27 +31,37 @@ class MainWindow(HasTraits):
 
     pattern_repeat_y = Int(4)
 
+    # UI elements
+    save = Button('Save...')
+    load = Button('Open...')
+
     view = View(
-        HGroup(
-            VGroup(
+        VGroup(
+            HGroup(
                 VGroup(
-                    Item('binding_rows'),
-                    Item('binding_cols'),
-                    Item(
-                        'binding',
-                        editor=CheckerBoardEditor(),
-                        label='Binding'),
-                    Item('pattern_repeat_x'),
-                    Item('pattern_repeat_y'),
-                    label='Binding',
+                    VGroup(
+                        Item('binding_rows'),
+                        Item('binding_cols'),
+                        Item(
+                            'binding',
+                            editor=CheckerBoardEditor(),
+                            label='Binding'),
+                        Item('pattern_repeat_x'),
+                        Item('pattern_repeat_y'),
+                        label='Binding',
+                        show_border=True,
+                    ),
+                ),
+                Group(
+                    Item('pattern', editor=ColoredCheckerBoardEditor()),
                     show_border=True,
-                )
+                    show_labels=False,
+                    label='Pattern'),
             ),
-            Group(
-                Item('pattern', editor=ColoredCheckerBoardEditor()),
-                show_border=True,
-                show_labels=False,
-                label='Pattern'),
+            HGroup(
+                Item("save", show_label=False),
+                Item("load", show_label=False),
+            )
         ),
         title='Color Patterns',
     )
@@ -107,6 +120,18 @@ class MainWindow(HasTraits):
         cols = self.binding_cols
         self.binding.data = self.pattern.data[:rows, :cols]
         self.binding.data_updated = True
+
+    def _load_changed(self):
+        filename = QtGui.QFileDialog.getOpenFileName()[0]
+        if filename != '':
+            print 'Loading from', filename
+            load_models(filename, self)
+
+    def _save_changed(self):
+        filename = QtGui.QFileDialog.getSaveFileName()[0]
+        if filename != '':
+            print 'Saving to', filename
+            save_models(filename, self)
 
 
 if __name__ == '__main__':
