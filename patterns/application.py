@@ -134,6 +134,10 @@ class MainWindow(HasTraits):
             save_models(filename, self)
 
 
+def main():
+    main_window = MainWindow()
+    main_window.configure_traits()
+
+
 if __name__ == '__main__':
-    main = MainWindow()
-    main.configure_traits()
+    main()
